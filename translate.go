@@ -32,7 +32,6 @@ type Translate struct {
 	translator translator.Translator
 	namesLangs map[string][]*translator.Language
 	opts       map[string]interface{}
-	ApiKey     string
 }
 
 func Register(name string, factory TranslatorFactory) {
