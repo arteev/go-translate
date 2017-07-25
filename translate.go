@@ -10,15 +10,12 @@ import (
 	"github.com/arteev/go-translate/translator"
 )
 
-//TODO : translator Google translate
-//TODO : отделить go-translator и конкретные провайдеры
-
 //Errors
 var (
 	ErrUnknowProvider = errors.New("Unknown provider")
 )
 
-//TranslatorFactory Создание экземпляра
+//TranslatorFactory factory translator
 type TranslatorFactory interface {
 	NewInstance(opts map[string]interface{}) translator.Translator
 }

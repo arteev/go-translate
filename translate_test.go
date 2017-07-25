@@ -11,8 +11,6 @@ import (
 	"github.com/arteev/go-translate/translator"
 )
 
-//TODO: test opts
-
 type fakeprovider struct {
 	invokeGetlang   bool
 	invokeDetect    bool
@@ -203,5 +201,30 @@ func TestGetLang(t *testing.T) {
 
 	if lgs[0] != lgs2[0] {
 		t.Errorf("Expected GetLangs() returns ptr[0] %p,got %p", lgs[0], lgs2[0])
+	}
+}
+
+func TestOptions(t *testing.T) {
+	unregisterAllTranslators()
+	Register("test", &testfirst{})
+
+	tr, err := New("test",
+		WithOption("apikey", "123"),
+		WithOption("id", "1"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	opts := tr.getOptions()
+	if opts == nil {
+		t.Fatal("Expected map with options")
+	}
+
+	if len(opts) != 2 {
+		t.Errorf("Expected len(options) %d, got %d", 2, len(opts))
+	}
+
+	if got, ok := opts["apikey"]; !ok || got != "123" {
+		t.Errorf("Expected for key:apikey value:%s, got: %s", "123", got)
 	}
 }
