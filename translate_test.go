@@ -49,10 +49,6 @@ func (testfirst) NewInstance(opts map[string]interface{}) translator.Translator 
 	return &fakeprovider{}
 }
 
-func testsecond(opts map[string]interface{}) translator.Translator {
-	return nil
-}
-
 func TestDupTranslator(t *testing.T) {
 	defer func() {
 		dupChecked := false
@@ -126,7 +122,10 @@ func TestInvoke(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	tr.GetLangs("en")
+	_, err = tr.GetLangs("en")
+	if err != nil {
+		t.Fatal(err)
+	}
 	fp := tr.translator.(*fakeprovider)
 	if !fp.invokeGetlang {
 		t.Error("Expected call GetLangs")

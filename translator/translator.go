@@ -2,9 +2,10 @@ package translator
 
 import "errors"
 
+//Errors
 var (
-	ErrWrongApiKey          = errors.New("Wrong API key")
-	ErrBlockedApiKey        = errors.New("The API key is blocked")
+	ErrWrongAPIKey          = errors.New("Wrong API key")
+	ErrBlockedAPIKey        = errors.New("The API key is blocked")
 	ErrUnsupported          = errors.New("Unsupported")
 	ErrLimitDayExceeded     = errors.New("Day limit exceeded")
 	ErrLimitMonthExceeded   = errors.New("Month limit exceeded")
@@ -13,6 +14,8 @@ var (
 	ErrDirectionUnsupported = errors.New("Set the direction of translation is not supported")
 )
 
+//Translator -this interface defines the basic
+//translation methods for specific translation providers
 type Translator interface {
 	//Get support languages
 	GetLangs(code string) ([]*Language, error)
@@ -24,6 +27,7 @@ type Translator interface {
 	Name() string
 }
 
+//A Result of translation
 type Result struct {
 	Text     string
 	FromLang *Language

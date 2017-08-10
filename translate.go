@@ -15,7 +15,7 @@ var (
 	ErrUnknowProvider = errors.New("Unknown provider")
 )
 
-//TranslatorFactory factory translator
+//TranslatorFactory - factory translator
 type TranslatorFactory interface {
 	NewInstance(opts map[string]interface{}) translator.Translator
 }
@@ -25,12 +25,14 @@ var (
 	translators   = make(map[string]TranslatorFactory)
 )
 
+//Translate - wrappers for Translator interface
 type Translate struct {
 	translator translator.Translator
 	namesLangs map[string][]*translator.Language
 	opts       map[string]interface{}
 }
 
+//Register - registers translator with name and factory function
 func Register(name string, factory TranslatorFactory) {
 	muTranslators.Lock()
 	defer muTranslators.Unlock()
@@ -59,14 +61,17 @@ func Translators() []string {
 	return list
 }
 
+//Option for storing translator options
 type Option func(*Translate)
 
+//WithOption - Adds an optional parameter for the translator at the time of creation
 func WithOption(name string, value interface{}) Option {
 	return func(t *Translate) {
 		t.opts[name] = value
 	}
 }
 
+//New - Creates an translator with a name and opts options
 func New(name string, opts ...Option) (*Translate, error) {
 	muTranslators.RLock()
 	trs, ok := translators[name]
@@ -96,6 +101,7 @@ func (t *Translate) getOptions() map[string]interface{} {
 	return m
 }
 
+//GetLangs - returns supported languages
 func (t *Translate) GetLangs(code string) ([]*translator.Language, error) {
 	if langs, ok := t.namesLangs[code]; ok {
 		return langs, nil
@@ -110,6 +116,7 @@ func (t *Translate) GetLangs(code string) ([]*translator.Language, error) {
 	return langs, nil
 }
 
+//Detect - returns automatically detected text language
 func (t *Translate) Detect(text string) (*translator.Language, error) {
 	l, err := t.translator.Detect(text)
 	if err != nil {
@@ -118,6 +125,7 @@ func (t *Translate) Detect(text string) (*translator.Language, error) {
 	return l, err
 }
 
+//Translate - returns the translated text to the language direction
 func (t *Translate) Translate(text, direction string) *translator.Result {
 	return t.translator.Translate(text, direction)
 }
