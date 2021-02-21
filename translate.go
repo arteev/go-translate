@@ -12,7 +12,7 @@ import (
 
 //Errors
 var (
-	ErrUnknowProvider = errors.New("Unknown provider")
+	ErrUnknownProvider = errors.New("unknown provider")
 )
 
 //TranslatorFactory - factory translator
@@ -27,10 +27,12 @@ var (
 
 //Translate - wrappers for Translator interface
 type Translate struct {
-	translator translator.Translator
-	namesLangs map[string][]*translator.Language
-	opts       map[string]interface{}
+	translator    translator.Translator
+	nameLanguages map[string][]*translator.Language
+	opts          map[string]interface{}
 }
+
+var _ translator.Translator = (*Translate)(nil)
 
 //Register - registers translator with name and factory function
 func Register(name string, factory TranslatorFactory) {
@@ -81,8 +83,8 @@ func New(name string, opts ...Option) (*Translate, error) {
 	}
 
 	tr := &Translate{
-		namesLangs: make(map[string][]*translator.Language),
-		opts:       make(map[string]interface{}),
+		nameLanguages: make(map[string][]*translator.Language),
+		opts:          make(map[string]interface{}),
 	}
 	//Fill options
 	for _, opt := range opts {
@@ -103,7 +105,7 @@ func (t *Translate) getOptions() map[string]interface{} {
 
 //GetLangs - returns supported languages
 func (t *Translate) GetLangs(code string) ([]*translator.Language, error) {
-	if langs, ok := t.namesLangs[code]; ok {
+	if langs, ok := t.nameLanguages[code]; ok {
 		return langs, nil
 	}
 	langs, err := t.translator.GetLangs(code)
@@ -111,7 +113,7 @@ func (t *Translate) GetLangs(code string) ([]*translator.Language, error) {
 		return nil, err
 	}
 	if code != "" {
-		t.namesLangs[code] = langs
+		t.nameLanguages[code] = langs
 	}
 	return langs, nil
 }
@@ -128,4 +130,8 @@ func (t *Translate) Detect(text string) (*translator.Language, error) {
 //Translate - returns the translated text to the language direction
 func (t *Translate) Translate(text, direction string) *translator.Result {
 	return t.translator.Translate(text, direction)
+}
+
+func (t *Translate) Name() string {
+	return t.translator.Name()
 }

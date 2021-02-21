@@ -1,6 +1,6 @@
 package translator
 
-//Language -structure defining the language
+// Language - structure defining the language
 //of the translation and the direction of possible translations
 type Language struct {
 	Code string
@@ -8,7 +8,7 @@ type Language struct {
 	Dirs []*Language
 }
 
-//NewLanguage - returns *Language of language with name and code
+// NewLanguage - returns *Language of language with name and code
 func NewLanguage(code, name string) *Language {
 	return &Language{
 		Code: code,
@@ -16,7 +16,7 @@ func NewLanguage(code, name string) *Language {
 	}
 }
 
-//AddDir - Adds translation direction
+// AddDir - Adds translation direction
 func (l *Language) AddDir(d *Language) {
 	if l == d || l.Code == d.Code {
 		return
@@ -29,7 +29,7 @@ func (l *Language) AddDir(d *Language) {
 	l.Dirs = append(l.Dirs, d)
 }
 
-//String - Stringer
+// String - Stringer
 func (l Language) String() string {
 	return l.Code
 }

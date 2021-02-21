@@ -40,7 +40,7 @@ func (p *fakeprovider) Translate(text, direction string) *translator.Result {
 }
 
 func (fakeprovider) Name() string {
-	return ""
+	return "fakeprovider"
 }
 
 type testfirst struct{}
@@ -144,6 +144,18 @@ func TestInvoke(t *testing.T) {
 	}
 }
 
+func TestName(t *testing.T) {
+	unregisterAllTranslators()
+	Register("test", &testfirst{})
+	tr, err := New("test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if name := tr.Name(); name != "fakeprovider" {
+		t.Errorf("Expected Name fakeprovider, got %s", name)
+	}
+}
+
 func TestDetect(t *testing.T) {
 	unregisterAllTranslators()
 	Register("test", &testfirst{})
@@ -151,7 +163,6 @@ func TestDetect(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
 	_, err = tr.Detect("")
 	if err == nil || err.Error() != "Text is empty" {
 		t.Errorf("Expected error: %q, got %s", "Text is empty", err)
