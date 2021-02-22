@@ -4,14 +4,14 @@ import "errors"
 
 //Errors
 var (
-	ErrWrongAPIKey          = errors.New("Wrong API key")
-	ErrBlockedAPIKey        = errors.New("The API key is blocked")
-	ErrUnsupported          = errors.New("Unsupported")
-	ErrLimitDayExceeded     = errors.New("Day limit exceeded")
-	ErrLimitMonthExceeded   = errors.New("Month limit exceeded")
-	ErrLimitTextExceeded    = errors.New("Exceeded the maximum size of the text")
-	ErrTextNotTranslated    = errors.New("Text can not be translated")
-	ErrDirectionUnsupported = errors.New("Set the direction of translation is not supported")
+	ErrWrongAPIKey          = errors.New("wrong API key")
+	ErrBlockedAPIKey        = errors.New("the API key is blocked")
+	ErrUnsupported          = errors.New("unsupported")
+	ErrLimitDayExceeded     = errors.New("day limit exceeded")
+	ErrLimitMonthExceeded   = errors.New("month limit exceeded")
+	ErrLimitTextExceeded    = errors.New("exceeded the maximum size of the text")
+	ErrTextNotTranslated    = errors.New("text can not be translated")
+	ErrDirectionUnsupported = errors.New("set the direction of translation is not supported")
 )
 
 //Translator -this interface defines the basic
