@@ -30,7 +30,7 @@ type Translator interface {
 	//Detect language
 	Detect(text string) (language.Language, error)
 	//Translate text
-	Translate(text, direction string) *Result
+	Translate(text, direction string) (*Result, error)
 	//Name of translator
 	Name() string
 }
@@ -41,7 +41,6 @@ type Result struct {
 	FromLang *language.Language
 	ToLang   *language.Language
 	Detected *language.Language
-	Err      error
 }
 
 //TranslatorFactory - factory translator

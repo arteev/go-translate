@@ -34,9 +34,9 @@ func (p *fakeprovider) Detect(text string) (language.Language, error) {
 	return language.New("en", "English"), nil
 }
 
-func (p *fakeprovider) Translate(text, direction string) *Result {
+func (p *fakeprovider) Translate(text, direction string) (*Result, error) {
 	p.invokeTranslate = true
-	return nil
+	return nil, nil
 }
 
 func (fakeprovider) Name() string {
