@@ -1,6 +1,7 @@
 package translate
 
 import (
+	"github.com/arteev/go-translate/language"
 	"reflect"
 	"testing"
 
@@ -8,7 +9,6 @@ import (
 
 	"errors"
 
-	"github.com/arteev/go-translate/translator"
 )
 
 type fakeprovider struct {
@@ -18,23 +18,23 @@ type fakeprovider struct {
 }
 
 //Get support languages
-func (p *fakeprovider) GetLangs(code string) ([]translator.Language, error) {
+func (p *fakeprovider) GetLangs(code string) ([]language.Language, error) {
 	p.invokeGetlang = true
 	if code == "en" {
-		return []translator.Language{translator.New("en", "English")}, nil
+		return []language.Language{language.New("en", "English")}, nil
 	}
 	return nil, errors.New("Unsupported")
 }
 
-func (p *fakeprovider) Detect(text string) (translator.Language, error) {
+func (p *fakeprovider) Detect(text string) (language.Language, error) {
 	p.invokeDetect = true
 	if text == "" {
-		return translator.Language{}, errors.New("Text is empty")
+		return language.Language{}, errors.New("Text is empty")
 	}
-	return translator.New("en", "English"), nil
+	return language.New("en", "English"), nil
 }
 
-func (p *fakeprovider) Translate(text, direction string) *translator.Result {
+func (p *fakeprovider) Translate(text, direction string) *Result {
 	p.invokeTranslate = true
 	return nil
 }
@@ -45,7 +45,7 @@ func (fakeprovider) Name() string {
 
 type testfirst struct{}
 
-func (testfirst) NewInstance(opts map[string]interface{}) translator.Translator {
+func (testfirst) NewInstance(opts map[string]interface{}) Translator {
 	return &fakeprovider{}
 }
 
@@ -175,7 +175,7 @@ func TestDetect(t *testing.T) {
 			t.Fatal("Expected Detect() not nil")
 		}
 		if l.Code != "en" {
-			t.Errorf("Expected %s,got %s", translator.New("en", "English"), l)
+			t.Errorf("Expected %s,got %s", language.New("en", "English"), l)
 		}
 	}
 

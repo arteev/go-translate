@@ -1,4 +1,4 @@
-package translator
+package language
 
 // Targets map Source -> [Target1,Target2]
 type Targets map[Language][]Language

@@ -3,21 +3,51 @@ package translate
 import (
 	"errors"
 	"fmt"
+	"github.com/arteev/go-translate/language"
 	"sort"
 
 	"sync"
 
-	translator "github.com/arteev/go-translate/translator"
 )
 
 //Errors
 var (
-	ErrUnknownProvider = errors.New("unknown provider")
+	ErrUnknownProvider      = errors.New("unknown provider")
+	ErrWrongAPIKey          = errors.New("wrong API key")
+	ErrBlockedAPIKey        = errors.New("the API key is blocked")
+	ErrUnsupported          = errors.New("unsupported")
+	ErrLimitDayExceeded     = errors.New("day limit exceeded")
+	ErrLimitMonthExceeded   = errors.New("month limit exceeded")
+	ErrLimitTextExceeded    = errors.New("exceeded the maximum size of the text")
+	ErrTextNotTranslated    = errors.New("text can not be translated")
+	ErrDirectionUnsupported = errors.New("set the direction of translation is not supported")
 )
+
+//Translator -this interface defines the basic
+//translation methods for specific translation providers
+type Translator interface {
+	//Get support languages
+	GetLangs(code string) ([]language.Language, error)
+	//Detect language
+	Detect(text string) (language.Language, error)
+	//Translate text
+	Translate(text, direction string) *Result
+	//Name of translator
+	Name() string
+}
+
+//A Result of translation
+type Result struct {
+	Text     string
+	FromLang *language.Language
+	ToLang   *language.Language
+	Detected *language.Language
+	Err      error
+}
 
 //TranslatorFactory - factory translator
 type TranslatorFactory interface {
-	NewInstance(opts map[string]interface{}) translator.Translator
+	NewInstance(opts map[string]interface{}) Translator
 }
 
 var (
@@ -27,12 +57,12 @@ var (
 
 //Translate - wrappers for Translator interface
 type Translate struct {
-	translator    translator.Translator
-	nameLanguages map[string][]translator.Language
+	translator    Translator
+	nameLanguages map[string][]language.Language
 	opts          map[string]interface{}
 }
 
-var _ translator.Translator = (*Translate)(nil)
+var _ Translator = (*Translate)(nil)
 
 //Register - registers translator with name and factory function
 func Register(name string, factory TranslatorFactory) {
@@ -83,7 +113,7 @@ func New(name string, opts ...Option) (*Translate, error) {
 	}
 
 	tr := &Translate{
-		nameLanguages: make(map[string][]translator.Language),
+		nameLanguages: make(map[string][]language.Language),
 		opts:          make(map[string]interface{}),
 	}
 	//Fill options
@@ -104,7 +134,7 @@ func (t *Translate) getOptions() map[string]interface{} {
 }
 
 //GetLangs - returns supported languages
-func (t *Translate) GetLangs(code string) ([]translator.Language, error) {
+func (t *Translate) GetLangs(code string) ([]language.Language, error) {
 	if langs, ok := t.nameLanguages[code]; ok {
 		return langs, nil
 	}
@@ -119,16 +149,16 @@ func (t *Translate) GetLangs(code string) ([]translator.Language, error) {
 }
 
 //Detect - returns automatically detected text language
-func (t *Translate) Detect(text string) (translator.Language, error) {
+func (t *Translate) Detect(text string) (language.Language, error) {
 	l, err := t.translator.Detect(text)
 	if err != nil {
-		return translator.Language{}, err
+		return language.Language{}, err
 	}
 	return l, err
 }
 
 //Translate - returns the translated text to the language direction
-func (t *Translate) Translate(text, direction string) *translator.Result {
+func (t *Translate) Translate(text, direction string) *Result {
 	return t.translator.Translate(text, direction)
 }
 

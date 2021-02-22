@@ -1,4 +1,4 @@
-package translator
+package language
 
 // Language - structure defining the language (ISO 639-2)
 //of the translation and the direction of possible translations
