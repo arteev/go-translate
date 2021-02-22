@@ -7,7 +7,6 @@ import (
 	"sort"
 
 	"sync"
-
 )
 
 //Errors
@@ -27,7 +26,7 @@ var (
 //translation methods for specific translation providers
 type Translator interface {
 	//Get support languages
-	GetLangs(code string) ([]language.Language, error)
+	GetLanguages(code string) ([]language.Language, error)
 	//Detect language
 	Detect(text string) (language.Language, error)
 	//Translate text
@@ -54,15 +53,6 @@ var (
 	muTranslators sync.RWMutex
 	translators   = make(map[string]TranslatorFactory)
 )
-
-//Translate - wrappers for Translator interface
-type Translate struct {
-	translator    Translator
-	nameLanguages map[string][]language.Language
-	opts          map[string]interface{}
-}
-
-var _ Translator = (*Translate)(nil)
 
 //Register - registers translator with name and factory function
 func Register(name string, factory TranslatorFactory) {
@@ -93,18 +83,20 @@ func Translators() []string {
 	return list
 }
 
+type Options map[string]interface{}
+
 //Option for storing translator options
-type Option func(*Translate)
+type Option func(*Options)
 
 //WithOption - Adds an optional parameter for the translator at the time of creation
 func WithOption(name string, value interface{}) Option {
-	return func(t *Translate) {
-		t.opts[name] = value
+	return func(t *Options) {
+		(*t)[name] = value
 	}
 }
 
 //New - Creates an translator with a name and opts options
-func New(name string, opts ...Option) (*Translate, error) {
+func New(name string, opts ...Option) (Translator, error) {
 	muTranslators.RLock()
 	trs, ok := translators[name]
 	muTranslators.RUnlock()
@@ -112,56 +104,12 @@ func New(name string, opts ...Option) (*Translate, error) {
 		return nil, fmt.Errorf("translator: unknown translator %q", name)
 	}
 
-	tr := &Translate{
-		nameLanguages: make(map[string][]language.Language),
-		opts:          make(map[string]interface{}),
-	}
+	options := &Options{}
 	//Fill options
 	for _, opt := range opts {
-		opt(tr)
+		opt(options)
 	}
 
-	tr.translator = trs.NewInstance(tr.getOptions())
-	return tr, nil
-}
-
-func (t *Translate) getOptions() map[string]interface{} {
-	m := make(map[string]interface{})
-	for k, v := range t.opts {
-		m[k] = v
-	}
-	return m
-}
-
-//GetLangs - returns supported languages
-func (t *Translate) GetLangs(code string) ([]language.Language, error) {
-	if langs, ok := t.nameLanguages[code]; ok {
-		return langs, nil
-	}
-	langs, err := t.translator.GetLangs(code)
-	if err != nil {
-		return nil, err
-	}
-	if code != "" {
-		t.nameLanguages[code] = langs
-	}
-	return langs, nil
-}
-
-//Detect - returns automatically detected text language
-func (t *Translate) Detect(text string) (language.Language, error) {
-	l, err := t.translator.Detect(text)
-	if err != nil {
-		return language.Language{}, err
-	}
-	return l, err
-}
-
-//Translate - returns the translated text to the language direction
-func (t *Translate) Translate(text, direction string) *Result {
-	return t.translator.Translate(text, direction)
-}
-
-func (t *Translate) Name() string {
-	return t.translator.Name()
+	translator := trs.NewInstance(*options)
+	return translator, nil
 }

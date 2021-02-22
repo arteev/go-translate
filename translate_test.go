@@ -8,17 +8,17 @@ import (
 	"strings"
 
 	"errors"
-
 )
 
 type fakeprovider struct {
 	invokeGetlang   bool
 	invokeDetect    bool
 	invokeTranslate bool
+	opts            map[string]interface{}
 }
 
 //Get support languages
-func (p *fakeprovider) GetLangs(code string) ([]language.Language, error) {
+func (p *fakeprovider) GetLanguages(code string) ([]language.Language, error) {
 	p.invokeGetlang = true
 	if code == "en" {
 		return []language.Language{language.New("en", "English")}, nil
@@ -46,7 +46,9 @@ func (fakeprovider) Name() string {
 type testfirst struct{}
 
 func (testfirst) NewInstance(opts map[string]interface{}) Translator {
-	return &fakeprovider{}
+	return &fakeprovider{
+		opts: opts,
+	}
 }
 
 func TestDupTranslator(t *testing.T) {
@@ -84,8 +86,8 @@ func TestRegTranslators(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if reflect.TypeOf(tr.translator).String() != "*translate.fakeprovider" {
-		t.Errorf("Expected provider type fakeprovider, got %v", reflect.TypeOf(tr.translator).String())
+	if reflect.TypeOf(tr).String() != "*translate.fakeprovider" {
+		t.Errorf("Expected provider type fakeprovider, got %v", reflect.TypeOf(tr).String())
 	}
 
 	if arrTrs := Translators(); len(arrTrs) != 1 {
@@ -122,13 +124,13 @@ func TestInvoke(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = tr.GetLangs("en")
+	_, err = tr.GetLanguages("en")
 	if err != nil {
 		t.Fatal(err)
 	}
-	fp := tr.translator.(*fakeprovider)
+	fp := tr.(*fakeprovider)
 	if !fp.invokeGetlang {
-		t.Error("Expected call GetLangs")
+		t.Error("Expected call GetLanguages")
 	}
 	_, err = tr.Detect("text")
 	if err != nil {
@@ -188,29 +190,29 @@ func TestGetLang(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	lgs, err := tr.GetLangs("en")
+	lgs, err := tr.GetLanguages("en")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(lgs) != 1 {
-		t.Errorf("Expected count GetLangs %d,got %d", 1, len(lgs))
+		t.Errorf("Expected count GetLanguages %d,got %d", 1, len(lgs))
 	}
 
-	_, err = tr.GetLangs("")
+	_, err = tr.GetLanguages("")
 	if err == nil {
-		t.Fatal("Expected error for GetLangs, got nil")
+		t.Fatal("Expected error for GetLanguages, got nil")
 	}
 	if err.Error() != "Unsupported" {
-		t.Errorf("Expected error GetLangs %q,got %s", "Unsupported", err)
+		t.Errorf("Expected error GetLanguages %q,got %s", "Unsupported", err)
 	}
 
-	lgs2, err := tr.GetLangs("en")
+	lgs2, err := tr.GetLanguages("en")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if lgs[0] != lgs2[0] {
-		t.Errorf("Expected GetLangs() returns ptr[0] %v,got %v", lgs[0], lgs2[0])
+		t.Errorf("Expected GetLanguages() returns ptr[0] %v,got %v", lgs[0], lgs2[0])
 	}
 }
 
@@ -225,7 +227,7 @@ func TestOptions(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	opts := tr.getOptions()
+	opts := tr.(*fakeprovider).opts
 	if opts == nil {
 		t.Fatal("Expected map with options")
 	}
