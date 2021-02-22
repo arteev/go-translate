@@ -1,49 +1,32 @@
 package translator
 
 import (
-	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func TestLang(t *testing.T) {
+func TestLanguage(t *testing.T) {
 	const (
 		code = "ru"
 		name = "Russian"
 	)
 
-	lang := NewLanguage(code, name)
+	lang := New(code, name)
 
-	if lang.Code != code {
-		t.Errorf("Excepted %s, got %s", code, lang.Code)
-	}
-	if lang.Name != name {
-		t.Errorf("Excepted %s, got %s", name, lang.Name)
-	}
+	assert.Equal(t, code, lang.Code)
+	assert.Equal(t, name, lang.Name)
+	assert.Equal(t, code, lang.String())
 
-	if fmt.Sprint(lang) != code {
-		t.Errorf("Excepted %s, got %s", code, fmt.Sprint(lang))
-	}
+	lang2 := New("en", "English")
+	assert.False(t, lang2.Equal(lang))
+	assert.False(t, lang.Equal(lang2))
 
-	if len(lang.Dirs) != 0 {
-		t.Errorf("Excepted len dir %d, got %d", 0, len(lang.Dirs))
-	}
-	lang.AddDir(lang)
-	if len(lang.Dirs) != 0 {
-		t.Errorf("Excepted len dir %d, got %d", 0, len(lang.Dirs))
-	}
+	langEqual := New("ru", "ru")
+	assert.True(t, langEqual.Equal(lang))
+	assert.True(t, lang.Equal(langEqual))
+}
 
-	en := NewLanguage("en", "English")
-	lang.AddDir(en)
-	if len(lang.Dirs) != 1 {
-		t.Errorf("Excepted len dir %d, got %d", 1, len(lang.Dirs))
-	}
-
-	if lang.Dirs[0] != en {
-		t.Errorf("Excepted %v, got %v", en, lang.Dirs[0])
-	}
-	lang.AddDir(en)
-	if len(lang.Dirs) != 1 {
-		t.Errorf("Excepted len dir %d, got %d", 1, len(lang.Dirs))
-	}
-
+func TestLanguage_Empty(t *testing.T) {
+	assert.True(t, Language{}.Empty())
+	assert.False(t, New("en","en").Empty())
 }

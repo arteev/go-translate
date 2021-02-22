@@ -18,20 +18,20 @@ type fakeprovider struct {
 }
 
 //Get support languages
-func (p *fakeprovider) GetLangs(code string) ([]*translator.Language, error) {
+func (p *fakeprovider) GetLangs(code string) ([]translator.Language, error) {
 	p.invokeGetlang = true
 	if code == "en" {
-		return []*translator.Language{translator.NewLanguage("en", "English")}, nil
+		return []translator.Language{translator.New("en", "English")}, nil
 	}
 	return nil, errors.New("Unsupported")
 }
 
-func (p *fakeprovider) Detect(text string) (*translator.Language, error) {
+func (p *fakeprovider) Detect(text string) (translator.Language, error) {
 	p.invokeDetect = true
 	if text == "" {
-		return nil, errors.New("Text is empty")
+		return translator.Language{}, errors.New("Text is empty")
 	}
-	return translator.NewLanguage("en", "English"), nil
+	return translator.New("en", "English"), nil
 }
 
 func (p *fakeprovider) Translate(text, direction string) *translator.Result {
@@ -171,11 +171,11 @@ func TestDetect(t *testing.T) {
 	if l, err := tr.Detect("Hello"); err != nil {
 		t.Error(err)
 	} else {
-		if l == nil {
+		if l.Empty() {
 			t.Fatal("Expected Detect() not nil")
 		}
 		if l.Code != "en" {
-			t.Errorf("Expected %s,got %s", translator.NewLanguage("en", "English"), l)
+			t.Errorf("Expected %s,got %s", translator.New("en", "English"), l)
 		}
 	}
 
@@ -210,7 +210,7 @@ func TestGetLang(t *testing.T) {
 	}
 
 	if lgs[0] != lgs2[0] {
-		t.Errorf("Expected GetLangs() returns ptr[0] %p,got %p", lgs[0], lgs2[0])
+		t.Errorf("Expected GetLangs() returns ptr[0] %v,got %v", lgs[0], lgs2[0])
 	}
 }
 

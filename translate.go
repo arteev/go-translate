@@ -7,7 +7,7 @@ import (
 
 	"sync"
 
-	"github.com/arteev/go-translate/translator"
+	translator "github.com/arteev/go-translate/translator"
 )
 
 //Errors
@@ -28,7 +28,7 @@ var (
 //Translate - wrappers for Translator interface
 type Translate struct {
 	translator    translator.Translator
-	nameLanguages map[string][]*translator.Language
+	nameLanguages map[string][]translator.Language
 	opts          map[string]interface{}
 }
 
@@ -83,7 +83,7 @@ func New(name string, opts ...Option) (*Translate, error) {
 	}
 
 	tr := &Translate{
-		nameLanguages: make(map[string][]*translator.Language),
+		nameLanguages: make(map[string][]translator.Language),
 		opts:          make(map[string]interface{}),
 	}
 	//Fill options
@@ -104,7 +104,7 @@ func (t *Translate) getOptions() map[string]interface{} {
 }
 
 //GetLangs - returns supported languages
-func (t *Translate) GetLangs(code string) ([]*translator.Language, error) {
+func (t *Translate) GetLangs(code string) ([]translator.Language, error) {
 	if langs, ok := t.nameLanguages[code]; ok {
 		return langs, nil
 	}
@@ -119,10 +119,10 @@ func (t *Translate) GetLangs(code string) ([]*translator.Language, error) {
 }
 
 //Detect - returns automatically detected text language
-func (t *Translate) Detect(text string) (*translator.Language, error) {
+func (t *Translate) Detect(text string) (translator.Language, error) {
 	l, err := t.translator.Detect(text)
 	if err != nil {
-		return nil, err
+		return translator.Language{}, err
 	}
 	return l, err
 }

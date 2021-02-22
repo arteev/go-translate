@@ -1,35 +1,30 @@
 package translator
 
-// Language - structure defining the language
+// Language - structure defining the language (ISO 639-2)
 //of the translation and the direction of possible translations
 type Language struct {
 	Code string
 	Name string
-	Dirs []*Language
 }
 
-// NewLanguage - returns *Language of language with name and code
-func NewLanguage(code, name string) *Language {
-	return &Language{
+// New - returns *Language of language with name and code
+func New(code, name string) Language {
+	return Language{
 		Code: code,
 		Name: name,
 	}
 }
 
-// AddDir - Adds translation direction
-func (l *Language) AddDir(d *Language) {
-	if l == d || l.Code == d.Code {
-		return
-	}
-	for _, ld := range l.Dirs {
-		if ld == d {
-			return
-		}
-	}
-	l.Dirs = append(l.Dirs, d)
-}
-
 // String - Stringer
 func (l Language) String() string {
 	return l.Code
+}
+
+// Equal returns true if language codes match
+func (l Language) Equal(language Language) bool {
+	return l.Code == language.Code
+}
+
+func (l Language) Empty() bool {
+	return l.Code == ""
 }

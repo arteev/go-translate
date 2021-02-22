@@ -18,9 +18,9 @@ var (
 //translation methods for specific translation providers
 type Translator interface {
 	//Get support languages
-	GetLangs(code string) ([]*Language, error)
+	GetLangs(code string) ([]Language, error)
 	//Detect language
-	Detect(text string) (*Language, error)
+	Detect(text string) (Language, error)
 	//Translate text
 	Translate(text, direction string) *Result
 	//Name of translator
